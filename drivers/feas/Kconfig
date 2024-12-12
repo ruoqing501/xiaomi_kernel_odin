@@ -1,0 +1,5 @@
+config FEAS
+	tristate "Frame Energy Aware Scheduling"
+	help
+	  More power saving while meeting performance
+
