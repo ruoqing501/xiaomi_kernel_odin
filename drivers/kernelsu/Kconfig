@@ -9,12 +9,28 @@ config KSU
 	  To compile as a module, choose M here: the
 	  module will be called kernelsu.
 
+config KSU_WITH_KPROBES
+	bool "Use kprobes for kernelsu"
+	depends on KSU
+	depends on KPROBES
+	default y
+	help
+	  Disable if you use manual hooks.
+
 config KSU_DEBUG
 	bool "KernelSU debug mode"
 	depends on KSU
 	default n
 	help
 	  Enable KernelSU debug mode.
+
+config KSU_ALLOWLIST_WORKAROUND
+        bool "KernelSU Session Keyring Init workaround"
+        depends on KSU
+        default n
+        help
+          Enable session keyring init workaround for problematic devices.
+          Useful for situations where the SU allowlist is not kept after a reboot.
 
 menu "KernelSU - SUSFS"
 config KSU_SUSFS
@@ -85,6 +101,7 @@ config KSU_SUSFS_SUS_OVERLAYFS
     default n
     help
       - Automatically spoof the kstat and kstatfs for overlayed files/directories.
+      - Enable it if you are using legacy KernelSU and dont have auto hide features enabled.
       - No susfs command is needed in userspace.
       - Effective on all processes.
 

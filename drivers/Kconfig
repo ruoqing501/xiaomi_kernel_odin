@@ -236,6 +236,4 @@ source "drivers/mihw/Kconfig"
 
 source "drivers/kernelsu/Kconfig"
 
-source "drivers/feas/Kconfig"
-
 endmenu
