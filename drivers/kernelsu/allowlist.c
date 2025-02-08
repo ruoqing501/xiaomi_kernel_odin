@@ -66,6 +66,7 @@ static void remove_uid_from_arr(uid_t uid)
 static void init_default_profiles()
 {
 	kernel_cap_t full_cap = CAP_FULL_SET;
+
 	default_root_profile.uid = 0;
 	default_root_profile.gid = 0;
 	default_root_profile.groups_count = 1;
@@ -151,11 +152,6 @@ static inline bool forbid_system_uid(uid_t uid) {
 static bool profile_valid(struct app_profile *profile)
 {
 	if (!profile) {
-		return false;
-	}
-
-	if (forbid_system_uid(profile->current_uid)) {
-		pr_err("uid lower than 2000 is unsupported: %d\n", profile->current_uid);
 		return false;
 	}
 

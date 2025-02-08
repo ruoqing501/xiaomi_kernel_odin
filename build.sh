@@ -21,10 +21,10 @@ DEFCONFIG="odin_defconfig"
 # 文件名称
 if [ -d ".git" ]; then
 GIT_COMMIT_HASH=$(git rev-parse --short=7 HEAD)
-ZIP_NAME="MIX4-5.4.278-g${GIT_COMMIT_HASH}.zip"
+ZIP_NAME="MIX4-5.4.281-g${GIT_COMMIT_HASH}.zip"
 else
 CURRENT_TIME=$(date '+%Y-%m%d%H%M')
-ZIP_NAME="MIX4-5.4.278-${CURRENT_TIME}.zip"
+ZIP_NAME="MIX4-5.4.281-${CURRENT_TIME}.zip"
 fi
 
 # 字体颜色
@@ -35,7 +35,7 @@ NC='\033[0m' # No Color
 
 # 安装依赖
 install() {
-    dependencies=(git git-lfs ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev zlib1g-dev:i386 g++-multilib python-networkx libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev xsltproc unzip openjdk-17-jdk repo)
+    dependencies=(git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev zlib1g-dev:i386 g++-multilib python-networkx libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev xsltproc unzip openjdk-17-jdk repo)
     missing=0
     for pkg in "${dependencies[@]}"; do
     if ! dpkg -s "$pkg" >/dev/null 2>&1; then
@@ -74,9 +74,9 @@ build() {
     cp out/defconfig arch/arm64/configs/"${DEFCONFIG}"
     START_TIME=$(date +%s)
     make ${args}
-    if [ ! -f "${IMAGE_DIR}" ]; then
+    if [ $? -ne 0 ]; then
     echo -e "${YELLOW}--------------------------------------------------${NC}"
-    echo -e "${RED}编译失败...${NC}"
+    echo -e "${RED}编译失败，请检查代码后重试...${NC}"
     echo -e "${YELLOW}--------------------------------------------------${NC}"
     clean
     exit 1
@@ -103,7 +103,7 @@ package() {
     echo -e "${YELLOW}--------------------------------------------------${NC}"
     echo -e "${GREEN}编译完成...${NC}"
     echo -e "${YELLOW}--------------------------------------------------${NC}"
-    echo -e "${RED}总共用时： $((COST_TIME / 60))分$((COST_TIME % 60))秒${NC}"
+    echo -e "${GREEN}总共用时： $((COST_TIME / 60))分$((COST_TIME % 60))秒${NC}"
     echo -e "${YELLOW}--------------------------------------------------${NC}"
     echo -e "${YELLOW}内核文件: ${CURRENT_DIR}/${ZIP_NAME}${NC}"
     echo -e "${YELLOW}--------------------------------------------------${NC}"
