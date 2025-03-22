@@ -8,7 +8,8 @@
 CURRENT_DIR=$(pwd)
 KERNEL_DIR="${CURRENT_DIR}/xiaomi_kernel_odin"
 CLANG_DIR="${KERNEL_DIR}/scripts/clang-r383902b1"
-# GCC_DIR="${KERNEL_DIR}/scripts/aarch64-linux-android-4.9"
+GCC64_DIR="${KERNEL_DIR}/scripts/aarch64-linux-android-4.9"
+GCC_DIR="${KERNEL_DIR}/scripts/arm-linux-androideabi-4.9"
 ANYKERNEL_DIR="${KERNEL_DIR}/scripts/AnyKernel3"
 IMAGE_DIR="${KERNEL_DIR}/out/arch/arm64/boot/Image"
 MODULES_DIR="${ANYKERNEL_DIR}/modules/vendor/lib/modules"
@@ -59,10 +60,9 @@ email() {
 path() {
     export KBUILD_BUILD_USER="18201329"
     export KBUILD_BUILD_HOST="qq.com"
-#   export KBUILD_BUILD_TIMESTAMP="Sun Jan 26 20:13:14 CST 2025"
-    export PATH="${CLANG_DIR}/bin:$PATH"
-#   export PATH="${CLANG_DIR}/bin:${GCC_DIR}/bin:$PATH"
-    args="-j$(nproc) O=out CC=clang ARCH=arm64 LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1"
+#   export KBUILD_BUILD_TIMESTAMP="Sat Apr 4 20:13:14 CST 2025"
+    export PATH="${CLANG_DIR}/bin:${GCC64_DIR}/bin:${GCC_DIR}/bin:$PATH"
+    args="-j$(nproc) O=out CC=clang ARCH=arm64 LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1"
 #   args="-j$(nproc) O=out CC=clang ARCH=arm64 HOSTCC=gcc LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android-"
 
 }
@@ -71,8 +71,7 @@ path() {
 build() {
     make ${args} "${DEFCONFIG}"
     make ${args} menuconfig
-    make ${args} savedefconfig
-    cp out/defconfig arch/arm64/configs/"${DEFCONFIG}"
+    cp out/.config arch/arm64/configs/"${DEFCONFIG}"
     START_TIME=$(date +%s)
     make ${args}
     if [ $? -ne 0 ]; then
@@ -112,7 +111,7 @@ package() {
 # 清理环境
 clean() {
     rm -rf "${ANYKERNEL_DIR}"/Image
-    rm -rf "${KERNEL_DIR}"/out
+    rm -rf "${MODULES_DIR}"/*
 }
 
 # 主程序

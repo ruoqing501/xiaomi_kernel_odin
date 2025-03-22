@@ -619,7 +619,10 @@ static void __blk_mq_complete_request(struct request *rq)
 		rq->csd.func = __blk_mq_complete_request_remote;
 		rq->csd.info = rq;
 		rq->csd.flags = 0;
+           #pragma GCC diagnostic push
+           #pragma GCC diagnostic ignored "-Walign-mismatch"
 		smp_call_function_single_async(ctx->cpu, &rq->csd);
+           #pragma GCC diagnostic pop
 	} else {
 		q->mq_ops->complete(rq);
 	}
