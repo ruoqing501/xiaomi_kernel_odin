@@ -8,7 +8,8 @@
 CURRENT_DIR=$(pwd)
 KERNEL_DIR="${CURRENT_DIR}/xiaomi_kernel_odin"
 CLANG_DIR="${KERNEL_DIR}/scripts/clang-r383902b1"
-# GCC_DIR="${KERNEL_DIR}/scripts/aarch64-linux-android-4.9"
+GCC64_DIR="${KERNEL_DIR}/scripts/aarch64-linux-android-4.9"
+GCC_DIR="${KERNEL_DIR}/scripts/arm-linux-androideabi-4.9"
 ANYKERNEL_DIR="${KERNEL_DIR}/scripts/AnyKernel3"
 IMAGE_DIR="${KERNEL_DIR}/out/arch/arm64/boot/Image"
 MODULES_DIR="${ANYKERNEL_DIR}/modules/vendor/lib/modules"
@@ -62,7 +63,7 @@ path() {
 #   export KBUILD_BUILD_TIMESTAMP="Sun Jan 26 20:13:14 CST 2025"
     export PATH="${CLANG_DIR}/bin:$PATH"
 #   export PATH="${CLANG_DIR}/bin:${GCC_DIR}/bin:$PATH"
-    args="-j$(nproc) O=out CC=clang ARCH=arm64 LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- LLVM=1 LLVM_IAS=1"
+    args="-j$(nproc) O=out CC=clang ARCH=arm64 LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1"
 #   args="-j$(nproc) O=out CC=clang ARCH=arm64 HOSTCC=gcc LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android-"
 
 }
