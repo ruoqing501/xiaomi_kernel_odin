@@ -22,17 +22,17 @@ echo -e "${YELLOW}==================================================${NC}"
 # 文件路径
 CURRENT_DIR=$(pwd)
 KERNEL_DIR="${CURRENT_DIR}/xiaomi_kernel_odin"
-CLANG_DIR="${KERNEL_DIR}/scripts/clang-r383902b1"
-GCC64_DIR="${KERNEL_DIR}/scripts/aarch64-linux-android-4.9"
-GCC_DIR="${KERNEL_DIR}/scripts/arm-linux-androideabi-4.9"
-ANYKERNEL_DIR="${KERNEL_DIR}/scripts/AnyKernel3"
+CLANG_DIR="${KERNEL_DIR}/scripts/tools/clang-r383902b1"
+GCC64_DIR="${KERNEL_DIR}/scripts/tools/aarch64-linux-android-4.9"
+GCC_DIR="${KERNEL_DIR}/scripts/tools/arm-linux-androideabi-4.9"
+ANYKERNEL_DIR="${KERNEL_DIR}/scripts/tools/AnyKernel3"
 IMAGE_DIR="${KERNEL_DIR}/out/arch/arm64/boot/Image"
 MODULES_DIR="${ANYKERNEL_DIR}/modules/vendor/lib/modules"
 ROOT_DIR="${KERNEL_DIR}/drivers"
-KSU_DIR="${KERNEL_DIR}/scripts/root/Kernelsu"
-KSU_NEXT_DIR="${KERNEL_DIR}/scripts/root/Kernelsu-next"
-SUKISU_DIR="${KERNEL_DIR}/scripts/root/SukiSU-Ultra"
-MKSU_DIR="${KERNEL_DIR}/scripts/root/MKSU"
+KSU_DIR="${KERNEL_DIR}/scripts/tools/root/Kernelsu"
+KSU_NEXT_DIR="${KERNEL_DIR}/scripts/tools/root/Kernelsu-next"
+SUKISU_DIR="${KERNEL_DIR}/scripts/tools/root/SukiSU-Ultra"
+MKSU_DIR="${KERNEL_DIR}/scripts/tools/root/MKSU"
 
 # 内核目录
 cd "${KERNEL_DIR}"
@@ -45,7 +45,7 @@ if [ -d ".git" ]; then
 GIT_COMMIT_HASH=$(git rev-parse --short=7 HEAD)
 ZIP_NAME="MIX4-5.4.289-g${GIT_COMMIT_HASH}.zip"
 else
-CURRENT_TIME=$(date '+%Y-%m%d%H%M')
+CURRENT_TIME=$(date '+%Y%m%d%H%M')
 ZIP_NAME="MIX4-5.4.289-${CURRENT_TIME}.zip"
 fi
 
@@ -76,7 +76,7 @@ path() {
     export KBUILD_BUILD_HOST="qq.com"
 #   export KBUILD_BUILD_TIMESTAMP="Sat Apr 4 20:13:14 CST 2025"
     export PATH="${CLANG_DIR}/bin:${GCC64_DIR}/bin:${GCC_DIR}/bin:$PATH"
-    args="-j$(nproc) O=out CC=clang ARCH=arm64 SUBARCH=arm64 LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1"
+    args="-j$(nproc) O=out CC=clang ARCH=arm64 SUBARCH=arm64 LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- LLVM=1 LLVM_IAS=1"
 #   args="-j$(nproc) O=out CC=clang ARCH=arm64 HOSTCC=gcc LD=ld.lld CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android-"
 
 }
@@ -147,17 +147,19 @@ build() {
 
 # 打包内核
 package() {
-    cd "${ANYKERNEL_DIR}"
-    cp "${IMAGE_DIR}" "${ANYKERNEL_DIR}/Image"
     if grep -q '=m' "${KERNEL_DIR}/out/.config"; then
     make ${args} INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 modules_install
+    cd "${ANYKERNEL_DIR}"
     cp $(find "${KERNEL_DIR}/out/modules/lib/modules/5.4*" -name '*.ko') "${MODULES_DIR}"
     cp "${KERNEL_DIR}/out/modules/lib/modules/5.4"/modules.{alias,dep,softdep} "${MODULES_DIR}"
     cp "${KERNEL_DIR}/out/modules/lib/modules/5.4"/modules.order "${MODULES_DIR}/modules.load"
     sed -i 's/ $kernel\/[^: ]*\/$  $[^: ]*\.ko$ /\/vendor\/lib\/modules\/\2/g' "${MODULES_DIR}/modules.dep"
     sed -i 's/.*\///g' "${MODULES_DIR}/modules.load"
     sed -i 's/do.modules=0/do.modules=1/g' anykernel.sh
+    cd "${KERNEL_DIR}"
     fi
+    cd "${ANYKERNEL_DIR}"
+    cp "${IMAGE_DIR}" "${ANYKERNEL_DIR}/Image"
     if [ "$KPM" = '1' ]; then
     cp "${SUKISU_DIR}/patch_linux" "${ANYKERNEL_DIR}/patch_linux"
     ./patch_linux
